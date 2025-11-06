@@ -1,0 +1,6 @@
+testes/MainTest.class
+sonoraweb/controller/MusicController.class
+DAO/MusicDAO.class
+model/Music.class
+sonoraweb/SonoraWebApplication.class
+dataBaseConection/ConnectionFactory.class

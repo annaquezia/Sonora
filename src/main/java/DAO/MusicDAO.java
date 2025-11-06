@@ -3,29 +3,36 @@ package DAO;
 import dataBaseConection.ConnectionFactory;
 import model.Music;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MusicDAO {
 
-    public void create(Music music) {
+    public Integer create(Music music) {
         String sql = "INSERT INTO musica (titulo, artista, album, duracao, favorito) VALUES (?, ?, ?, ?, ?)";
         try(Connection conn = ConnectionFactory.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, music.getTitle());
             stmt.setString(2, music.getArtist());
             stmt.setString(3, music.getAlbum());
             stmt.setDouble(4, music.getDuration());
             stmt.setBoolean(5, music.isFavorite());
-            stmt.executeUpdate();
+            int rows = stmt.executeUpdate();
 
+            if (rows == 0) throw new SQLException("Insert retornou 0 linhas");
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) {
+                    int id = keys.getInt(1);
+                    music.setId(id);
+                    return id;
+                }
+            }
+            return null;
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao adicionar música ", e);
+            System.err.println("[CREATE] SQLState=" + e.getSQLState() + " Code=" + e.getErrorCode() + " Msg=" + e.getMessage());
+            throw new RuntimeException("Erro ao adicionar música", e);
         }
     }
 
@@ -83,6 +90,34 @@ public class MusicDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao deletar música", e);
         }
+    }
+
+    public Music readById(int id) {
+        String sql = "SELECT id, titulo, artista, album, duracao, favorito FROM musica WHERE id = ?";
+        Music music = null;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    music = new Music(
+                            rs.getInt("id"),
+                            rs.getString("titulo"),
+                            rs.getString("artista"),
+                            rs.getString("album"),
+                            rs.getDouble("duracao"),
+                            rs.getBoolean("favorito")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar música por ID", e);
+        }
+
+        return music;
     }
 
     public void favorite(int id) {

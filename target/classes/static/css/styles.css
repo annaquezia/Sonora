@@ -1,0 +1,14 @@
+:root {
+    --yellow:#E7C208;
+    --blue: #8a7ec0;
+    --off-white: #f0eddc;
+    --brown: #706045
+}
+
+html body {
+    background: var(--blue);
+}
+.container h1 {
+    text-align: left;
+}
+
