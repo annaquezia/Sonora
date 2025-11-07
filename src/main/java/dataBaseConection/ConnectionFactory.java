@@ -18,8 +18,8 @@ public class ConnectionFactory {
             String url = "jdbc:mysql://" + serverName + ":3306/" + myDataBase
                     + "?useSSL=false&serverTimezone=America/Sao_Paulo&allowPublicKeyRetrieval=true";
 
-            String username = "root";
-            String password = "10@9g9a5s3N";
+            String username = "";
+            String password = "";
 
             return DriverManager.getConnection(url, username, password);
 
